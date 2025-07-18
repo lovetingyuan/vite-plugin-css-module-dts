@@ -16,12 +16,14 @@ function cssModuleDTSPlugin(
   }
 ): Plugin {
   let rootDir = ''
+  let cssSourceMapEnabled = false
   return {
     name: 'css-module-dts-generate',
     apply: 'serve',
     enforce: 'post',
     configResolved(config) {
       rootDir = config.root
+      cssSourceMapEnabled = config.css.devSourcemap
       mkdirSync(path.join(rootDir, options.dtsOutputDir), { recursive: true })
     },
 
@@ -37,7 +39,7 @@ function cssModuleDTSPlugin(
         .replaceAll('const __vite__css', 'export const __vite__css')
       const base64 = Buffer.from(compiled, 'utf-8').toString('base64')
       const style = await import(`data:text/javascript;base64,${base64}`)
-      const lineMapping = await getInlineLineMappings(style.__vite__css)
+      const lineMapping = cssSourceMapEnabled ? await getInlineLineMappings(style.__vite__css) : []
       // const sourceCode = await extractSourcesFromCSS(style.__vite__css)
       const result: {
         line?: number
@@ -53,7 +55,7 @@ function cssModuleDTSPlugin(
           rule: key, // style.default[key],
         })
       }
-      console.log(id, result, rootDir, path.relative(rootDir, id))
+      // console.log(id, result, rootDir, path.relative(rootDir, id))
       const relativePath = path.relative(rootDir, id)
       const dirname = path.join(rootDir, options.dtsOutputDir, path.dirname(relativePath))
       mkdirSync(dirname, { recursive: true })

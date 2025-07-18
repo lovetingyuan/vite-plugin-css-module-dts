@@ -1,7 +1,7 @@
 {
   "name": "vite-plugin-css-module-dts",
   "description": "A Vite plugin that automatically generates TypeScript type declaration files for CSS Modules.",
-  "version": "0.0.1",
+  "version": "0.0.0",
   "type": "module",
   "exports": {
     ".": {
@@ -11,7 +11,8 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsdown src/index.ts --dts"
+    "build": "tsdown src/index.ts --dts",
+    "prepublishOnly": "npm run build"
   },
   "keywords": [
     "vite",
@@ -34,11 +35,12 @@
     "registry": "https://registry.npmjs.org/"
   },
   "peerDependencies": {
-    "vite": "^6.0.0 || ^7.0.0",
-    "source-map": "^0.7.4"
+    "source-map": "^0.7.4",
+    "vite": "^6.0.0 || ^7.0.0"
   },
   "devDependencies": {
     "@types/node": "^24.0.14",
+    "np": "^10.2.0",
     "tsdown": "^0.12.9",
     "typescript": "^5.8.3",
     "vite": "^7.0.5"
