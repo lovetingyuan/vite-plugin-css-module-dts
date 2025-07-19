@@ -10,7 +10,8 @@ import { getInlineLineMappings } from './sourcemap'
 function cssModuleDTSPlugin(
   options = {
     /**
-     * 表示dts输出的目录
+     * The output dir of *.module.css.d.ts,
+     * relative path of the project root, default is "css-module-types".
      */
     dtsOutputDir: 'css-module-types',
   }
@@ -62,13 +63,13 @@ function cssModuleDTSPlugin(
       const dts = [
         'declare const styles: {',
         ...result.map(item => {
-          return `  /** @see {@link file:///${id}#L${item.line}} */\n  readonly ${JSON.stringify(
+          const lineInfo = item.line ? `#L${item.line}` : ''
+          return `  /** @see {@link file:///${id}${lineInfo}} */\n  readonly ${JSON.stringify(
             item.rule
           )}: string;`
         }),
         '};',
         'export = styles;',
-        '',
       ].join('\n')
       writeFileSync(path.join(rootDir, options.dtsOutputDir, relativePath + '.d.ts'), dts)
     },
