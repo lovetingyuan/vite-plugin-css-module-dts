@@ -27,3 +27,38 @@ const config = defineConfig({
 
 export default config
 ```
+
+## Example
+
+css module:
+
+```css
+/** style.module.css */
+.foo {
+  color: red;
+}
+.fooBar {
+  font-size: 14px;
+}
+```
+
+generated dts:
+
+```ts
+declare const styles: {
+  /** @see {@link /project-root/style.module.css#L2} */
+  readonly foo: string
+  /** @see {@link /project-root/style.module.css#L5} */
+  readonly fooBar: string
+}
+```
+
+```ts
+import styles from './style.module.css'
+/**
+ * styles type: {
+ *   readonly foo: string
+ *   readonly fooBar: string
+ * }
+ */
+```
