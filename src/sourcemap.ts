@@ -50,24 +50,24 @@ export async function getInlineLineMappings(css: string): Promise<LineMapping[]>
 
     let source: string | undefined
     let originalLine: number | undefined
-    let originalContent: string | undefined
+    // let originalContent: string | undefined
 
     if (mapping && mapping.source && mapping.originalLine) {
       source = mapping.source
       originalLine = mapping.originalLine
 
-      const srcLines = sourceLineMap.get(source)
-      if (srcLines && srcLines.length >= originalLine) {
-        originalContent = srcLines[originalLine - 1]
-      }
+      // const srcLines = sourceLineMap.get(source)
+      // if (srcLines && srcLines.length >= originalLine) {
+      //   originalContent = srcLines[originalLine - 1]
+      // }
     }
 
     results.push({
       generatedLine: line,
       generatedContent,
-      source,
+      // source,
       originalLine,
-      originalContent,
+      // originalContent,
     })
   }
 
