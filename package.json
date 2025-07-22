@@ -1,7 +1,7 @@
 {
   "name": "vite-plugin-css-module-dts",
   "description": "A Vite plugin that automatically generates TypeScript type declaration files for CSS Modules.",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "type": "module",
   "exports": {
     ".": {
