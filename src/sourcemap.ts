@@ -1,7 +1,7 @@
 import { Buffer } from 'buffer'
 import { SourceMapConsumer, type RawSourceMap, type MappingItem } from 'source-map'
 
-export interface LineMapping {
+interface LineMapping {
   generatedLine: number
   generatedContent: string
   source?: string

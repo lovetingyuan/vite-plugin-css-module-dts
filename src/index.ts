@@ -1,5 +1,5 @@
 /**
- * Vite 插件，自动为css module生成类型注释文件
+ * Vite plugin，generate .d.ts for .module.css automatically.
  */
 import type { Plugin } from 'vite'
 import { mkdirSync, writeFileSync } from 'fs'
@@ -41,7 +41,6 @@ function cssModuleDTSPlugin(
       const base64 = Buffer.from(compiled, 'utf-8').toString('base64')
       const style = await import(`data:text/javascript;base64,${base64}`)
       const lineMapping = cssSourceMapEnabled ? await getInlineLineMappings(style.__vite__css) : []
-      // const sourceCode = await extractSourcesFromCSS(style.__vite__css)
       const result: {
         line?: number
         rule: string
@@ -56,7 +55,6 @@ function cssModuleDTSPlugin(
           rule: key, // style.default[key],
         })
       }
-      // console.log(id, result, rootDir, path.relative(rootDir, id))
       const relativePath = path.relative(rootDir, id)
       const dirname = path.join(rootDir, options.dtsOutputDir, path.dirname(relativePath))
       mkdirSync(dirname, { recursive: true })
