@@ -57,12 +57,14 @@ function cssModuleDTSPlugin(
       }
       const relativePath = path.relative(rootDir, id)
       const dirname = path.join(rootDir, options.dtsOutputDir, path.dirname(relativePath))
+      const fileName = path.basename(id)
       mkdirSync(dirname, { recursive: true })
       const dts = [
         'declare const styles: {',
         ...result.map(item => {
           const lineInfo = item.line ? `#L${item.line}` : ''
-          return `  /** @see {@link file:///${id}${lineInfo}} */\n  readonly ${JSON.stringify(
+          const line = item.line ? ':' + item.line : ''
+          return `  /** [👀👉 ${fileName}${line}](file:///${id}${lineInfo}) */\n  readonly ${JSON.stringify(
             item.rule
           )}: string;`
         }),

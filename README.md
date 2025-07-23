@@ -10,6 +10,8 @@ npm install vite-plugin-css-module-dts -D
 
 ## Usage
 
+#### vite.config.ts
+
 ```ts
 import { defineConfig } from 'vite'
 import cssModuleDtsPlugin from 'vite-plugin-css-module-dts'
@@ -20,12 +22,25 @@ const config = defineConfig({
   },
   plugins: [
     cssModuleDtsPlugin({
-      dtsOutputDir: 'css-modules-dts', // this is default value
+      dtsOutputDir: 'css-module-types', // this is default value
     }),
   ],
 })
 
 export default config
+```
+
+#### tsconfig.json
+
+```json
+{
+  "compilerOptions": {
+    // specify rootDirs to help TypeScript automatically perform path mapping for type files.
+    "rootDirs": ["src", "css-module-types/src"]
+    // ... other options
+  },
+  "include": ["src"]
+}
 ```
 
 ## Example
@@ -37,6 +52,7 @@ css module:
 .foo {
   color: red;
 }
+
 .fooBar {
   font-size: 14px;
 }
@@ -46,9 +62,9 @@ generated dts:
 
 ```ts
 declare const styles: {
-  /** @see {@link /project-root/style.module.css#L2} */
+  /** [style.module.css]/project-root/style.module.css#L2 */
   readonly foo: string
-  /** @see {@link /project-root/style.module.css#L5} */
+  /** [style.module.css]/project-root/style.module.css#L6 */
   readonly fooBar: string
 }
 ```
@@ -62,3 +78,5 @@ import styles from './style.module.css'
  * }
  */
 ```
+
+![hover tooltip](./example.png)
