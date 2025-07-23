@@ -32,14 +32,14 @@ export default config
 
 #### tsconfig.json
 
-```json
+```jsonc
 {
   "compilerOptions": {
     // specify rootDirs to help TypeScript automatically perform path mapping for type files.
-    "rootDirs": ["src", "css-module-types/src"]
+    "rootDirs": ["src", "css-module-types/src"],
     // ... other options
   },
-  "include": ["src"]
+  "include": ["src"],
 }
 ```
 
