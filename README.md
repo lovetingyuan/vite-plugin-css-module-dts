@@ -80,3 +80,8 @@ import styles from './style.module.css'
 ```
 
 ![hover tooltip](./example.png)
+
+
+## Caveats
+
+- Only imported and used CSS module files will generate corresponding DTS type declarations.
