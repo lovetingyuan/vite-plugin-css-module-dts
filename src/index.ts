@@ -68,7 +68,6 @@ function cssModuleDTSPlugin(
       if (!id.endsWith('.module.css')) {
         return null
       }
-
       const compiled = code
         .replaceAll('import {', '// import {')
         .replaceAll('__vite__updateStyle', '// __vite__updateStyle')
@@ -76,7 +75,9 @@ function cssModuleDTSPlugin(
         .replaceAll('const __vite__css', 'export const __vite__css')
       const base64 = Buffer.from(compiled, 'utf-8').toString('base64')
       const style = await import(`data:text/javascript;base64,${base64}`)
-      const lineMapping = cssSourceMapEnabled ? await getInlineLineMappings(style.__vite__css) : []
+      const lineMapping = cssSourceMapEnabled
+        ? await getInlineLineMappings(style.__vite__css)
+        : null
       const result: {
         line?: number
         rule: string
@@ -84,15 +85,15 @@ function cssModuleDTSPlugin(
         value: string
       }[] = []
       const source = readFileSync(id, 'utf-8')
-      const comments = extractCssComments(source)
+      const comments = cssSourceMapEnabled ? extractCssComments(source) : null
       for (const key in style.default) {
         const hashKey = style.default[key]
-        const line = lineMapping.find(v => {
+        const line = lineMapping?.find(v => {
           return v.generatedContent.includes('.' + hashKey) && v.originalLine
         })
         let comment = ''
         if (line?.originalLine) {
-          comment = comments[line.originalLine - 1]?.content ?? ''
+          comment = comments?.[line.originalLine - 1]?.content ?? ''
         }
         result.push({
           comment,
@@ -111,7 +112,6 @@ function cssModuleDTSPlugin(
           const lineInfo = item.line ? `#L${item.line}` : ''
           const line = item.line ? ':' + item.line : ''
           const comment = item.comment ? `\`\`\`txt\n${item.comment.trim()}\n\`\`\`\n` : ''
-
           return [
             `  /** ${comment} [👀👉 ${fileName}${line}](file:///${id}${lineInfo}) */`,
             `  readonly ${JSON.stringify(item.rule)}: ${JSON.stringify(item.value)};`,
