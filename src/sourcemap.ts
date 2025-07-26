@@ -10,14 +10,17 @@ interface LineMapping {
 }
 
 export async function getInlineLineMappings(css: string): Promise<LineMapping[]> {
-  // 解析 source map
-  const match = css.match(/\/\*# sourceMappingURL=data:application\/json;base64,([^*]+)\*\//)
-  if (!match) {
-    console.warn('Inline source map is not found.')
+  const prefix = '/*# sourceMappingURL=data:application/json;base64,'
+  const suffix = '*/'
+
+  const start = css.lastIndexOf(prefix)
+  const end = css.indexOf(suffix, start)
+  if (start === -1 || end === -1) {
     return []
   }
 
-  const base64 = match[1].trim()
+  const base64 = css.slice(start + prefix.length, end).trim()
+
   const rawMap = JSON.parse(Buffer.from(base64, 'base64').toString('utf8')) as RawSourceMap
   const cssLines = css.split('\n')
 
