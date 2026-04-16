@@ -11,7 +11,7 @@
     }
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "vitest run",
     "test:build": "node scripts/check-build-output.mjs",
     "build": "tsdown",
     "prepublishOnly": "npm run build",
@@ -46,6 +46,7 @@
     "np": "^10.2.0",
     "tsdown": "^0.21.9",
     "typescript": "^5.8.3",
-    "vite": "^8.0.8"
+    "vite": "^8.0.8",
+    "vitest": "^4.1.4"
   }
 }
