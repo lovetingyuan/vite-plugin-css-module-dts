@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { createServer } from 'vite'
+import { createServer, type ViteDevServer } from 'vite'
 import { readFileSync, rmSync, existsSync } from 'fs'
 import path from 'path'
 import { randomUUID } from 'crypto'
