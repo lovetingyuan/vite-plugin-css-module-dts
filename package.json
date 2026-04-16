@@ -3,15 +3,17 @@
   "description": "A Vite plugin that automatically generates TypeScript type declaration files for CSS Modules.",
   "version": "0.2.1",
   "type": "module",
+  "types": "./dist/index.d.mts",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
+      "types": "./dist/index.d.mts",
+      "import": "./dist/index.mjs"
     }
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsdown src/index.ts --dts",
+    "test:build": "node scripts/check-build-output.mjs",
+    "build": "tsdown",
     "prepublishOnly": "npm run build",
     "example": "cd example && npm run dev"
   },
@@ -42,7 +44,7 @@
   "devDependencies": {
     "@types/node": "^24.0.14",
     "np": "^10.2.0",
-    "tsdown": "^0.12.9",
+    "tsdown": "^0.21.9",
     "typescript": "^5.8.3",
     "vite": "^8.0.8"
   }
