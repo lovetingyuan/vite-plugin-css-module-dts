@@ -19,39 +19,66 @@ interface CssCommentInfo {
  * 提取CSS文件中以/**开头的注释内容和结尾行数
  * 使用现代的 String.matchAll() 方法
  * @param cssContent CSS文件内容
- * @returns 包含注释内容和结尾行数的对象数组
+ * @returns 包含注释内容和结尾行数的对象数组，以行号为索引
  */
 function extractCssComments(cssContent: string): CssCommentInfo[] {
+  // 统一行尾符，兼容 \r\n（Windows）和 \r（旧 Mac）
+  const normalized = cssContent.replace(/\r\n/g, '\n').replace(/\r/g, '\n')
+
+  // 预计算每行起始位置，避免每次匹配都截取子字符串
+  const lineStarts: number[] = [0]
+  for (let i = 0; i < normalized.length; i++) {
+    if (normalized[i] === '\n') lineStarts.push(i + 1)
+  }
+
+  // 二分查找字符位置对应的行号（1-based）
+  const getLineNumber = (pos: number): number => {
+    let lo = 0
+    let hi = lineStarts.length - 1
+    while (lo < hi) {
+      const mid = (lo + hi + 1) >> 1
+      if (lineStarts[mid] <= pos) lo = mid
+      else hi = mid - 1
+    }
+    return lo + 1
+  }
+
   const regex = /\/\*\*([\s\S]*?)\*\//g
   const comments: CssCommentInfo[] = []
 
-  for (const match of cssContent.matchAll(regex)) {
-    // 获取注释内容（去除/** 和 */）
-    const content = match[1].trim()
+  for (const match of normalized.matchAll(regex)) {
+    if (match.index === undefined) continue
 
-    // 计算结尾*/所在的行数
-    // 从字符串开始到匹配结束位置的内容中计算换行符数量
-    const textBeforeEnd = cssContent.substring(0, match.index! + match[0].length)
-    const endLine = (textBeforeEnd.match(/\n/g) || []).length + 1
+    // 清理 JSDoc 风格的多行内容：去除每行开头的 " * "
+    const content = match[1]
+      .split('\n')
+      .map(line => line.replace(/^\s*\*\s?/, '').trimEnd())
+      .join('\n')
+      .trim()
 
-    comments[endLine] = {
-      content,
-      endLine,
-    }
+    // 跳过空注释
+    if (!content) continue
+
+    // 结尾 */ 的位置（match[0] 最后一个字符）
+    const endLine = getLineNumber(match.index + match[0].length - 1)
+
+    // 同一行有多个注释时，后者覆盖前者
+    comments[endLine] = { content, endLine }
   }
 
   return comments
 }
 
 function cssModuleDTSPlugin(
-  options = {
+  options: {
     /**
      * The output dir of *.module.css.d.ts,
      * relative path of the project root, default is "css-module-types".
      */
-    dtsOutputDir: 'css-module-types',
-  }
+    dtsOutputDir?: string
+  } = {}
 ): Plugin {
+  const dtsOutputDir = options.dtsOutputDir ?? 'css-module-types'
   let rootDir = ''
   let cssSourceMapEnabled = false
   return {
@@ -61,7 +88,7 @@ function cssModuleDTSPlugin(
     configResolved(config) {
       rootDir = config.root
       cssSourceMapEnabled = config.css.devSourcemap
-      mkdirSync(path.join(rootDir, options.dtsOutputDir), { recursive: true })
+      mkdirSync(path.join(rootDir, dtsOutputDir), { recursive: true })
     },
 
     async transform(code, id) {
@@ -103,7 +130,7 @@ function cssModuleDTSPlugin(
         })
       }
       const relativePath = path.relative(rootDir, id)
-      const dirname = path.join(rootDir, options.dtsOutputDir, path.dirname(relativePath))
+      const dirname = path.join(rootDir, dtsOutputDir, path.dirname(relativePath))
       const fileName = path.basename(id)
       mkdirSync(dirname, { recursive: true })
       const dts = [
@@ -120,7 +147,7 @@ function cssModuleDTSPlugin(
         '};',
         'export = styles;',
       ].join('\n')
-      writeFileSync(path.join(rootDir, options.dtsOutputDir, relativePath + '.d.ts'), dts)
+      writeFileSync(path.join(rootDir, dtsOutputDir, relativePath + '.d.ts'), dts)
     },
   }
 }

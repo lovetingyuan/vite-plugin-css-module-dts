@@ -1,0 +1,14 @@
+{
+  "name": "vite-plugin-css-module-dts-example",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build"
+  },
+  "devDependencies": {
+    "source-map": "^0.7.4",
+    "typescript": "^5.8.3",
+    "vite": "^6.0.0"
+  }
+}

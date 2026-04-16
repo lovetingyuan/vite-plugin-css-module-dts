@@ -20,60 +20,56 @@ export async function getInlineLineMappings(css: string): Promise<LineMapping[]>
   }
 
   const base64 = css.slice(start + prefix.length, end).trim()
-
-  const rawMap = JSON.parse(Buffer.from(base64, 'base64').toString('utf8')) as RawSourceMap
-  const cssLines = css.split('\n')
-
-  const consumer = await new SourceMapConsumer(rawMap)
-
-  // 构建源文件行内容
-  const sourceLineMap = new Map<string, string[]>()
-  if (rawMap.sources && rawMap.sourcesContent) {
-    for (let i = 0; i < rawMap.sources.length; i++) {
-      const src = rawMap.sources[i]
-      const content = rawMap.sourcesContent[i]
-      if (content) sourceLineMap.set(src, content.split('\n'))
-    }
+  if (!base64) {
+    return []
   }
 
-  // 每一行选第一个有映射的点
-  const lineToMapping = new Map<number, MappingItem>()
+  let rawMap: RawSourceMap
+  try {
+    rawMap = JSON.parse(Buffer.from(base64, 'base64').toString('utf8')) as RawSourceMap
+  } catch {
+    return []
+  }
 
-  consumer.eachMapping(m => {
-    if (!lineToMapping.has(m.generatedLine)) {
-      lineToMapping.set(m.generatedLine, m)
-    }
-  })
+  // 基本结构校验：source-map 规范要求 version 和 mappings 字段
+  if (!rawMap || typeof rawMap !== 'object' || rawMap.version == null || rawMap.mappings == null) {
+    return []
+  }
 
+  const cssLines = css.split('\n')
   const results: LineMapping[] = []
 
-  for (let line = 1; line <= cssLines.length; line++) {
-    const generatedContent = cssLines[line - 1]
-    const mapping = lineToMapping.get(line)
+  let consumer: SourceMapConsumer | undefined
+  try {
+    consumer = await new SourceMapConsumer(rawMap)
 
-    let source: string | undefined
-    let originalLine: number | undefined
-    // let originalContent: string | undefined
-
-    if (mapping && mapping.source && mapping.originalLine) {
-      source = mapping.source
-      originalLine = mapping.originalLine
-
-      // const srcLines = sourceLineMap.get(source)
-      // if (srcLines && srcLines.length >= originalLine) {
-      //   originalContent = srcLines[originalLine - 1]
-      // }
-    }
-
-    results.push({
-      generatedLine: line,
-      generatedContent,
-      // source,
-      originalLine,
-      // originalContent,
+    // 每一行选第一个有映射的点
+    const lineToMapping = new Map<number, MappingItem>()
+    consumer.eachMapping(m => {
+      if (!lineToMapping.has(m.generatedLine)) {
+        lineToMapping.set(m.generatedLine, m)
+      }
     })
+
+    for (let line = 1; line <= cssLines.length; line++) {
+      const generatedContent = cssLines[line - 1] ?? ''
+      const mapping = lineToMapping.get(line)
+
+      let originalLine: number | undefined
+      // 用 != null 而非 truthy，避免行号为 0 时被误判为无映射
+      if (mapping && mapping.source != null && mapping.originalLine != null) {
+        originalLine = mapping.originalLine
+      }
+
+      results.push({
+        generatedLine: line,
+        generatedContent,
+        originalLine,
+      })
+    }
+  } finally {
+    consumer?.destroy()
   }
 
-  consumer.destroy()
   return results
 }

@@ -1,0 +1,45 @@
+/**
+ * 页面最外层容器，限制最大宽度并居中
+ */
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 40px 20px;
+  font-family: sans-serif;
+}
+
+/**
+ * 主标题样式
+ */
+.title {
+  font-size: 2rem;
+  color: #333;
+  margin-bottom: 16px;
+}
+
+/**
+ * 描述文字
+ */
+.desc {
+  color: #666;
+  line-height: 1.6;
+  margin-bottom: 24px;
+}
+
+/**
+ * 主操作按钮
+ * 用于触发主要操作
+ */
+.btn {
+  padding: 8px 20px;
+  background: #646cff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.btn:hover {
+  background: #535bf2;
+}
